@@ -1,0 +1,9 @@
+liparibank:
+  bank-code: LPRI-PROD
+  max-transfer-amount: 80000.20
+  audit:
+    enabled: false
+
+logging:
+  level:
+    com.lipari: WARN

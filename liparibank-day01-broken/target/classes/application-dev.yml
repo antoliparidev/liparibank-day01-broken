@@ -1,0 +1,10 @@
+liparibank:
+  bank-code: LPRI-DEV
+  max-transfer-amount: 50000.20
+  audit:
+    enabled: false
+
+logging:
+  level:
+    com.lipari: DEBUG
+    org.springframework.web: DEBUG
