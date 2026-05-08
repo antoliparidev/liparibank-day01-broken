@@ -2,6 +2,7 @@ package com.lipari.bank.account;
 
 import com.lipari.bank.account.dto.AccountCreateRequest;
 import com.lipari.bank.account.dto.AccountResponse;
+import com.lipari.bank.account.model.Account;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,7 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/accounts")
@@ -95,4 +98,18 @@ public class AccountController {
         accountService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/search")
+    @Operation(summary = "Ricerca conti per saldo", description = "Cerca conti filtrando per range di saldo. I parametri minBalance e maxBalance sono opzionali e combinabili.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "ricerca completata con successo")
+    })
+    public ResponseEntity<List<AccountResponse>> search(
+            @RequestParam(required = false) @Parameter(description = "Saldo minimo (inclusivo)", example = "500") BigDecimal minBalance,
+            @RequestParam(required = false) @Parameter(description = "Saldo massimo (inclusivo)", example = "2000") BigDecimal maxBalance
+    ) {
+        return ResponseEntity.ok(accountService.search(minBalance, maxBalance));
+    }
+
 }

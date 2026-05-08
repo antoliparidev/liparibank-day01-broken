@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,8 +31,7 @@ public class AccountService {
     @Transactional(readOnly = true)
     public AccountResponse findById(Long id) {
         log.debug("Recupero conto con id: {}", id);
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conto non trovato con id: " + id));
+        Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Conto non trovato con id: " + id));
         return accountMapper.toResponse(account);
     }
 
@@ -47,8 +48,7 @@ public class AccountService {
     @Transactional
     public AccountResponse update(Long id, AccountCreateRequest request) {
         log.info("Aggiornamento conto con id: {}", id);
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conto non trovato con id: " + id));
+        Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Conto non trovato con id: " + id));
         account.setBalance(request.initialBalance());
         return accountMapper.toResponse(account);
     }
@@ -60,5 +60,11 @@ public class AccountService {
             throw new RuntimeException("Conto non trovato con id: " + id);
         }
         accountRepository.deleteById(id);
+    }
+
+    public List<AccountResponse> search(BigDecimal minBalance, BigDecimal maxBalance) {
+
+        log.debug("Ricerca conti con minBalance: {}, maxBalance: {}", minBalance, maxBalance);
+        return accountRepository.findByBalanceRange(minBalance, maxBalance).stream().map(accountMapper::toResponse).toList();
     }
 }
