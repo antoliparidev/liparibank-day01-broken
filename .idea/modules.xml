@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/liparibank-day01-broken/liparibank-day01-broken.iml" filepath="$PROJECT_DIR$/liparibank-day01-broken/liparibank-day01-broken.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/liparibank-exercises.iml" filepath="$PROJECT_DIR$/.idea/liparibank-exercises.iml" />
     </modules>
   </component>

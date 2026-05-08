@@ -10,16 +10,10 @@
         <module name="liparibank-day02-broken" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="liparibank-day01-broken" target="21" />
-      <module name="liparibank-day02-broken (1)" target="21" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="liparibank-day01-broken" options="-parameters" />
       <module name="liparibank-day02-broken" options="-parameters" />
-      <module name="liparibank-day02-broken (1)" options="-parameters" />
     </option>
   </component>
 </project>

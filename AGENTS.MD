@@ -1,14 +1,14 @@
-# AGENTS.md — LipariBank Day 01
+# AGENTS.md — LipariBank Day 02
 
 ## Project
 
-Spring Boot 3.3.4, Java 21, Maven. Project root: `liparibank-day01-broken/` (nested one level under repo root).
+Spring Boot 3.3.4, Java 21, Maven. Project root: `liparibank-day02-broken/`.
 
 ## Commands
 
 | Action | Command |
 |--------|---------|
-| Run app | `./mvnw spring-boot:run` (Linux/macOS) or `mvnw.cmd spring-boot:run` (Windows) |
+| Run app | `./mvnw spring-boot:run` |
 | Compile | `./mvnw compile` |
 | Run tests | `./mvnw test` |
 | Clean build | `./mvnw clean install` |
@@ -18,38 +18,33 @@ Spring Boot 3.3.4, Java 21, Maven. Project root: `liparibank-day01-broken/` (nes
 ```
 src/main/java/com/lipari/bank/
 ├── LipariBankApplication.java          # @SpringBootApplication entrypoint
-├── shared/config/
-│   └── LipariBankProperties.java       # @ConfigurationProperties(prefix="liparibank") record
-└── account/
-    ├── NotificationService.java        # interface
-    ├── EmailNotificationService.java   # @Service("emailNotificationService") implements NotificationService
-    ├── LogNotificationService.java     # @Service("logNotificationService") implements NotificationService
-    └── AlertService.java               # @Service, depends on NotificationService
-
-src/main/java/com/liparibank/lifecycle/
-└── BankSystemLifecycle.java            # @Component with @PostConstruct startup logs
+├── account/
+│   ├── model/Account.java              # JPA entity: id, iban, balance, status, createdAt
+│   ├── dto/
+│   │   ├── AccountCreateRequest.java   # record: codiceFiscale, initialBalance
+│   │   └── AccountResponse.java        # record with @Builder
+│   ├── AccountRepository.java          # JpaRepository<Account, Long>, + findByIban
+│   ├── AccountMapper.java              # @Component, Entity ↔ DTO conversion
+│   ├── AccountService.java             # CRUD with @Transactional
+│   └── AccountController.java          # @RestController, /api/v1/accounts
+└── shared/config/
+    └── OpenApiConfig.java              # OpenAPI bean config
 ```
 
-## Intentional Bugs
+## Intentional Bugs (3)
 
-This is a **training/exercise** project containing **3 intentional bugs**:
+1. **Controller accepts entity instead of DTO** (`AccountController.java:67`): `create()` parameter is `@Valid @RequestBody Account` (JPA entity) not `AccountCreateRequest`. Swagger shows wrong schema and `codiceFiscale` is discarded.
 
-1. **Binding failure** (`application.yml` line 9): `max-transfer-amount: 50000.00` is a decimal value, but `LipariBankProperties.maxTransferAmount` is declared as `int`. Spring Boot strict binding rejects the decimal.
+2. **Spring Security blocks all endpoints**: `spring-boot-starter-security` in `pom.xml` but no `SecurityFilterChain` bean. Auto-config generates random password → all endpoints return 401.
 
-2. **Ambiguous DI** (`AlertService`): two beans implement `NotificationService` (`EmailNotificationService`, `LogNotificationService`). Spring cannot choose which to inject. Fix: add `@Primary` to one implementation, or use `@Qualifier`, or inject a `List<NotificationService>`.
-
-3. **Missing bean registration**: `LipariBankProperties` has `@ConfigurationProperties` but no `@Component` or `@EnableConfigurationProperties`. Spring won't bind the YAML values.
-
-4. **Package mismatch**: `BankSystemLifecycle.java` declares `package com.liparibank.lifecycle;` while component scanning starts from `com.lipari.bank`. The component will never be discovered. Fix: rename to `com.lipari.bank.lifecycle` and move the file.
-
-## Configuration
-
-- Config prefix: `liparibank` (see `application.yml`)
-- Fields: `bankCode` (String), `maxTransferAmount`, `audit.enabled` (boolean)
-- Validation: `@Validated` on properties record, `@NotBlank` on `bankCode`
+3. **Missing `final` on repository field** (`AccountService.java:20`): `private AccountRepository accountRepository;` is not `final`, so `@RequiredArgsConstructor` skips it → NPE at runtime.
 
 ## Notes
 
-- Lombok is available but not currently used
-- No test files exist yet (bonus mission requires adding endpoints and beans)
-- `spring-boot-devtools` is on classpath for hot-reload
+- H2 console at `/h2-console` (in-memory, `create-drop` DDL)
+- Swagger UI at `/swagger-ui.html`, OpenAPI spec at `/api-docs`
+- Lombok used (`@Getter`, `@Setter`, `@NoArgsConstructor`, `@RequiredArgsConstructor`, `@Builder`, `@Slf4j`)
+- No custom exceptions (uses bare `RuntimeException` with message)
+- No `@ExceptionHandler` / `@ControllerAdvice`
+- No test files exist
+- No `spring-boot-devtools` (unlike day01)
