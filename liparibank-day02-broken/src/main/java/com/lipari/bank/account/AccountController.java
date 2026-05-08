@@ -2,7 +2,6 @@ package com.lipari.bank.account;
 
 import com.lipari.bank.account.dto.AccountCreateRequest;
 import com.lipari.bank.account.dto.AccountResponse;
-import com.lipari.bank.account.model.Account;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
